@@ -122,7 +122,6 @@ void CimageProcessingView::OnImageprocessSavetofile()
 void CimageProcessingView::OnImageprocessDisplayfileheader()
 {
 	if(pFileBuf == NULL) return;
-	/**/
 	DisplayHeaderMessage(pFileBuf);
 }
 
@@ -130,7 +129,6 @@ void CimageProcessingView::OnImageprocessDisplayfileheader()
 void CimageProcessingView::OnImageprocessDisplaypalette()
 {
 	if(pFileBuf == NULL) return;
-	/**/
 	int num = 0;
 	RGBQUAD *pallete = GetDIBPaletteData(pFileBuf,&num);
 	if( pallete == NULL )
@@ -139,7 +137,24 @@ void CimageProcessingView::OnImageprocessDisplaypalette()
 	}
 	else
 	{
-		//Here are your code
+		LPCTSTR lpszFilter = "TXT Files (*.txt)|*.txt||";
+		CFileDialog dlg(FALSE, NULL, NULL, OFN_NOCHANGEDIR, lpszFilter, NULL);
+		if (dlg.DoModal() != IDOK) return;
+		CString FilePath = dlg.GetPathName();
+		CFile hFile;
+		if (!hFile.Open(FilePath, CFile::modeCreate | CFile::modeWrite))
+		{
+			AfxMessageBox("Failed to create the TXT file");
+			return;
+		}
+		char msg_buff[100];
+		for (int i = 0; i < num; i++) {
+			memset(msg_buff, 0, sizeof(msg_buff));
+			sprintf(msg_buff, "Palette[%d]:rgbBlue=%hhx,rgbGreen=%hhx,rgbRed=%hhx,rgbReserved=%hhx\n"
+				, i, (pallete + i)->rgbBlue, (pallete + i)->rgbGreen, (pallete + i)->rgbRed, (pallete + i)->rgbReserved);
+			hFile.Write(msg_buff, (UINT)strlen(msg_buff));
+		}
+		hFile.Close();
 	}
 }
 
