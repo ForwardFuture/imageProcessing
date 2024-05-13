@@ -130,8 +130,8 @@ void CimageProcessingView::OnImageprocessDisplaypalette()
 {
 	if(pFileBuf == NULL) return;
 	int num = 0;
-	RGBQUAD *pallete = GetDIBPaletteData(pFileBuf,&num);
-	if( pallete == NULL )
+	RGBQUAD *palette = GetDIBPaletteData(pFileBuf,&num);
+	if( palette == NULL )
 	{
 		AfxMessageBox("No palette");
 	}
@@ -151,7 +151,7 @@ void CimageProcessingView::OnImageprocessDisplaypalette()
 		for (int i = 0; i < num; i++) {
 			memset(msg_buff, 0, sizeof(msg_buff));
 			sprintf(msg_buff, "Palette[%d]:rgbBlue=%hhx,rgbGreen=%hhx,rgbRed=%hhx,rgbReserved=%hhx\n"
-				, i, (pallete + i)->rgbBlue, (pallete + i)->rgbGreen, (pallete + i)->rgbRed, (pallete + i)->rgbReserved);
+				, i, (palette + i)->rgbBlue, (palette + i)->rgbGreen, (palette + i)->rgbRed, (palette + i)->rgbReserved);
 			hFile.Write(msg_buff, (UINT)strlen(msg_buff));
 		}
 		hFile.Close();
