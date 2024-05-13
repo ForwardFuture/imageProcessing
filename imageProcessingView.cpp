@@ -162,8 +162,13 @@ void CimageProcessingView::OnImageprocessDisplaypalette()
 void CimageProcessingView::OnImageprocessGetpixelvalue()
 {
 	if(pFileBuf == NULL) return;
+	CDialog dlg("GetPixelValue", NULL);
+	if (dlg.DoModal() != IDOK)return;
+	//int nret = dlg.DoModal();
+
 	/**/
 	//Add your code to choose the coordinate (x,y)
+	
 	int x = 100;
 	int y = 100;
 	RGBQUAD rgb;
@@ -235,7 +240,7 @@ void CimageProcessingView::OnImageprocessSharpengrad()
 {
 }
 
-//Cany edge detection
+//Canny edge detection
 void CimageProcessingView::OnImageprocessCannyedge()
 {
 }
