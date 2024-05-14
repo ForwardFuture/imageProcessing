@@ -41,7 +41,7 @@ public:
 	afx_msg void OnImageprocessDisplaypalette();
 	afx_msg void OnImageprocessGetpixelvalue();
 	afx_msg void OnImageprocessSetpixelvalue();
-	afx_msg void OnImageprocessInerpolation();
+	afx_msg void OnImageprocessInterpolation();
 	afx_msg void OnImageprocessGausssmooth();
 	afx_msg void OnImageprocessMedianfilter();
 	afx_msg void OnImageprocessBilateralfilter();

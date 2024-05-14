@@ -9,6 +9,7 @@
 
 #include "CInputXY.h"
 #include "CInputXYRGB.h"
+#include "CInterpolation.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -23,7 +24,7 @@ BEGIN_MESSAGE_MAP(CimageProcessingView, CView)
 	ON_COMMAND(ID_IMAGEPROCESS_DISPLAYPALETTE, &CimageProcessingView::OnImageprocessDisplaypalette)
 	ON_COMMAND(ID_IMAGEPROCESS_GETPIXELVALUE, &CimageProcessingView::OnImageprocessGetpixelvalue)
 	ON_COMMAND(ID_IMAGEPROCESS_SETPIXELVALUE, &CimageProcessingView::OnImageprocessSetpixelvalue)
-	ON_COMMAND(ID_IMAGEPROCESS_INERPOLATION, &CimageProcessingView::OnImageprocessInerpolation)
+	ON_COMMAND(ID_IMAGEPROCESS_INERPOLATION, &CimageProcessingView::OnImageprocessInterpolation)
 	ON_COMMAND(ID_IMAGEPROCESS_GAUSSSMOOTH, &CimageProcessingView::OnImageprocessGausssmooth)
 	ON_COMMAND(ID_IMAGEPROCESS_MEDIANFILTER, &CimageProcessingView::OnImageprocessMedianfilter)
 	ON_COMMAND(ID_IMAGEPROCESS_BILATERALFILTER, &CimageProcessingView::OnImageprocessBilateralfilter)
@@ -199,15 +200,18 @@ void CimageProcessingView::OnImageprocessSetpixelvalue()
 }
 
 //Image interpolaion
-void CimageProcessingView::OnImageprocessInerpolation()
+void CimageProcessingView::OnImageprocessInterpolation()
 {
 	if(pFileBuf == NULL) return;
-	/**/
-	//Add your code to choose method (nearest or bilinear) and zoom factors
-	int newWidth  = 500;
-	int newHeight = 490;
-	char *pNewImage = ImageInterpolation(pFileBuf,newWidth,newHeight,0);
-	delete [] pFileBuf;
+	CInterpolation inputDlg(NULL);
+	if (inputDlg.DoModal() != IDOK)return;
+	BITMAPINFOHEADER* pDIBInfo = (BITMAPINFOHEADER*)(pFileBuf + sizeof(BITMAPFILEHEADER));
+	int orgWidth = pDIBInfo->biWidth;
+	int orgHeight = pDIBInfo->biHeight;
+	int newWidth  = atof(inputDlg.factorX) * orgWidth;
+	int newHeight = atof(inputDlg.factorY) * orgHeight;
+	char* pNewImage = ImageInterpolation(pFileBuf, newWidth, newHeight, atoi(inputDlg.Method));
+	delete[] pFileBuf;
 	pFileBuf = pNewImage;
 	Invalidate();
 	UpdateWindow();

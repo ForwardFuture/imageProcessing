@@ -185,6 +185,7 @@
   <ItemGroup>
     <ClInclude Include="CInputXY.h" />
     <ClInclude Include="CInputXYRGB.h" />
+    <ClInclude Include="CInterpolation.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="imageProcessing.h" />
     <ClInclude Include="imageProcessingDoc.h" />
@@ -197,6 +198,7 @@
   <ItemGroup>
     <ClCompile Include="CInputXY.cpp" />
     <ClCompile Include="CInputXYRGB.cpp" />
+    <ClCompile Include="CInterpolation.cpp" />
     <ClCompile Include="imageProcessing.cpp" />
     <ClCompile Include="imageProcessingDoc.cpp" />
     <ClCompile Include="imageProcessingView.cpp" />

@@ -45,6 +45,9 @@
     <ClInclude Include="CInputXYRGB.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="CInterpolation.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imageProcessing.cpp">
@@ -66,6 +69,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CInputXYRGB.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CInterpolation.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
