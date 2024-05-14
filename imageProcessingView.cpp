@@ -11,6 +11,7 @@
 #include "CInputXYRGB.h"
 #include "CInterpolation.h"
 #include "CGausssmooth.h"
+#include "CMedianfilter.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -235,6 +236,16 @@ void CimageProcessingView::OnImageprocessGausssmooth()
 //Median filtering
 void CimageProcessingView::OnImageprocessMedianfilter()
 {
+	if (pFileBuf == NULL)return;
+	CMedianfilter inputDlg(NULL);
+	if (inputDlg.DoModal() != IDOK)return;
+	int N1 = atoi(inputDlg.N1);
+	int N2 = atoi(inputDlg.N2);
+	char* pNewImage = ImageMedianfilter(pFileBuf, N1, N2);
+	delete[] pFileBuf;
+	pFileBuf = pNewImage;
+	Invalidate();
+	UpdateWindow();
 }
 
 //Bilateral filtering

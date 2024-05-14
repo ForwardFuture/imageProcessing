@@ -24,3 +24,4 @@ BOOL    SaveDIB(char *pFileBuffer,CString strBmpFile);
 
 char    *ImageInterpolation(char *pBmpFileBuf,int newWidth,int newHeight,int nMethod=0);
 char    *ImageGausssmooth(char* pBmpFileBuf, int sigma);
+char    *ImageMedianfilter(char* pBmpFileBuf, int N1, int N2);

@@ -51,6 +51,9 @@
     <ClInclude Include="CGausssmooth.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="CMedianfilter.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imageProcessing.cpp">
@@ -78,6 +81,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CGausssmooth.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CMedianfilter.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

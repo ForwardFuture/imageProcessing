@@ -9,6 +9,7 @@
 #define IDD_CInputXYRGB                 315
 #define IDD_CInterpolation              316
 #define IDD_CGausssmooth                317
+#define IDD_CMedianfilter               318
 #define IDC_X                           1008
 #define IDC_Y                           1009
 #define IDC_R                           1010
@@ -18,8 +19,10 @@
 #define IDC_factorX                     1012
 #define IDC_Reserved                    1013
 #define IDC_factorY                     1013
-#define IDC_EDIT1                       1015
 #define IDC_Gauss                       1016
+#define IDC_N1                          1017
+#define IDC_EDIT2                       1018
+#define IDC_N2                          1018
 #define ID_IMAGEPROCESSING_OPENABMPFILE 32771
 #define ID_IMAGEPROCESSING_SAVETONEWBMP 32772
 #define ID_IMAGEPROCESSING_DISPLAYBMPFILEHEADER 32773
@@ -53,9 +56,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        319
+#define _APS_NEXT_RESOURCE_VALUE        320
 #define _APS_NEXT_COMMAND_VALUE         32799
-#define _APS_NEXT_CONTROL_VALUE         1017
-#define _APS_NEXT_SYMED_VALUE           318
+#define _APS_NEXT_CONTROL_VALUE         1019
+#define _APS_NEXT_SYMED_VALUE           319
 #endif
 #endif

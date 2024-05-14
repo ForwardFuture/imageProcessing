@@ -1,6 +1,8 @@
 //GlobalCommon.cpp
 #define _CRT_SECURE_NO_WARNINGS
 #include "_GlobalCommon.h"
+#include <algorithm>
+#include <cstdlib>
 
 /**
 	 功能: 从图像文件中建造DIB类
@@ -463,6 +465,59 @@ char* ImageGausssmooth(char* pBmpFileBuf, int sigma)
 			((BYTE*)&rgb)[3] = int(res);
 
 			SetPixel(pNewBmpFileBuf, x, y, rgb);
+		}
+	}
+
+	return pNewBmpFileBuf;
+}
+
+/**
+	 功能: 中值滤波
+		   N1  滤波器X方向半径
+		   N2  滤波器Y方向半径
+	 返回: 新图像的BMP文件缓冲区首地址
+		   NULL 表示失败（内存不足）
+**/
+char* ImageMedianfilter(char* pBmpFileBuf, int N1, int N2)
+{
+	BITMAPFILEHEADER* pFileHeader = (BITMAPFILEHEADER*)pBmpFileBuf;
+	BITMAPINFOHEADER* pDIBInfo = (BITMAPINFOHEADER*)(pBmpFileBuf + sizeof(BITMAPFILEHEADER));
+
+	char* pNewBmpFileBuf = new char[pFileHeader->bfSize];
+	memcpy(pNewBmpFileBuf, pBmpFileBuf, pFileHeader->bfOffBits);
+
+	int siz = (N1 * 2 + 1) * (N2 * 2 + 1);
+	std::pair<double, RGBQUAD>* elem = new std::pair<double, RGBQUAD>[siz];
+
+	int Width = pDIBInfo->biWidth;
+	int Height = pDIBInfo->biHeight;
+
+	for (int y = 0; y < Height; y++) {
+		for (int x = 0; x < Width; x++) {
+
+			RGBQUAD rgb;
+			double brightness = 0.0;
+			int id = 0;
+			for (int i = -N2; i <= N2; i++) {
+				for (int j = -N1; j <= N1; j++) {
+					int ny = y + i, nx = x + j;
+					if (ny < 0)ny = 0;
+					if (ny >= Height)ny = Height - 1;
+					if (nx < 0)nx = 0;
+					if (nx >= Width)nx = Width - 1;
+					GetPixel(pBmpFileBuf, nx, ny, &rgb);
+
+					// 计算颜色亮度
+					brightness = 1.0 * ((((BYTE*)&rgb)[2] * 299) + (((BYTE*)&rgb)[1] * 587) + (((BYTE*)&rgb)[0] * 114)) / 1000.0;
+					elem[id] = std::make_pair(brightness, rgb);
+					id++;
+				}
+			}
+			
+			std::sort(elem, elem + siz, [](std::pair<double, RGBQUAD>& a, std::pair<double, RGBQUAD>& b) {return a.first < b.first; });
+			
+			SetPixel(pNewBmpFileBuf, x, y, elem[(siz + 1) >> 1].second);
+
 		}
 	}
 
