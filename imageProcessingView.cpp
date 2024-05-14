@@ -164,15 +164,10 @@ void CimageProcessingView::OnImageprocessDisplaypalette()
 void CimageProcessingView::OnImageprocessGetpixelvalue()
 {
 	if (pFileBuf == NULL) return;
-	CInputXY inputDlg;
-	if (inputDlg.DoModal() != IDOK)return;
-	//int nret = dlg.DoModal();
-
-	/**/
-	//Add your code to choose the coordinate (x,y)
-	
-	int x = atoi(inputDlg.X.GetBuffer(0));
-	int y = atoi(inputDlg.Y.GetBuffer(0));
+	CInputXY inputDlg(NULL);
+	if (inputDlg.DoModal() != IDOK)return;	
+	int x = atoi(inputDlg.X_Coord);
+	int y = atoi(inputDlg.Y_Coord);
 	RGBQUAD rgb;
 	bool bGray;
 	GetPixel(pFileBuf,x,y,&rgb,&bGray);

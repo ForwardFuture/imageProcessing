@@ -4,7 +4,7 @@
 
 // CInputXY 对话框
 
-class CInputXY : public CDialog
+class CInputXY : public CDialogEx
 {
 	DECLARE_DYNAMIC(CInputXY)
 
@@ -22,7 +22,9 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 public:
-	CString X;
-	CString Y;
+	CEdit X;
+	CEdit Y;
+	CString X_Coord;
+	CString Y_Coord;
 	virtual INT_PTR DoModal();
 };

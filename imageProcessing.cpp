@@ -31,6 +31,7 @@ CimageProcessingApp theApp;
 
 BOOL CimageProcessingApp::InitInstance()
 {
+	AfxOleInit();
 	CWinApp::InitInstance();
 	EnableTaskbarInteraction(FALSE);
 	// 使用 RichEdit 控件需要 AfxInitRichEdit2()
