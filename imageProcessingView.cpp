@@ -208,8 +208,8 @@ void CimageProcessingView::OnImageprocessInterpolation()
 	BITMAPINFOHEADER* pDIBInfo = (BITMAPINFOHEADER*)(pFileBuf + sizeof(BITMAPFILEHEADER));
 	int orgWidth = pDIBInfo->biWidth;
 	int orgHeight = pDIBInfo->biHeight;
-	int newWidth  = atof(inputDlg.factorX) * orgWidth;
-	int newHeight = atof(inputDlg.factorY) * orgHeight;
+	int newWidth  = int(atof(inputDlg.factorX) * orgWidth);
+	int newHeight = int(atof(inputDlg.factorY) * orgHeight);
 	char* pNewImage = ImageInterpolation(pFileBuf, newWidth, newHeight, atoi(inputDlg.Method));
 	delete[] pFileBuf;
 	pFileBuf = pNewImage;
