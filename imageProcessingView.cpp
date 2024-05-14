@@ -8,6 +8,7 @@
 #include "_GlobalCommon.h"
 
 #include "CInputXY.h"
+#include "CInputXYRGB.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -183,15 +184,15 @@ void CimageProcessingView::OnImageprocessGetpixelvalue()
 void CimageProcessingView::OnImageprocessSetpixelvalue()
 {
 	if(pFileBuf == NULL) return;
-	/**/
-	//Add your code to choose the coordinate (x,y)
-	int x = 100;
-	int y = 100;
+	CInputXYRGB inputDlg(NULL);
+	if (inputDlg.DoModal() != IDOK)return;
+	int x = atoi(inputDlg.X_Coord);
+	int y = atoi(inputDlg.Y_Coord);
 	RGBQUAD rgb;
-	rgb.rgbReserved = 255;
-	rgb.rgbRed      = 255;
-	rgb.rgbGreen    = 255;
-	rgb.rgbBlue     = 255;
+	rgb.rgbReserved = atoi(inputDlg.Reserved);
+	rgb.rgbRed      = atoi(inputDlg.R);
+	rgb.rgbGreen    = atoi(inputDlg.G);
+	rgb.rgbBlue     = atoi(inputDlg.B);
 	SetPixel(pFileBuf,x,y,rgb);
 	Invalidate();
 	UpdateWindow();
