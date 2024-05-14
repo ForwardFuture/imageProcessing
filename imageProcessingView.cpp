@@ -7,6 +7,8 @@
 #include "imageProcessingView.h"
 #include "_GlobalCommon.h"
 
+#include "CInputXY.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -161,16 +163,16 @@ void CimageProcessingView::OnImageprocessDisplaypalette()
 //Get pixel value
 void CimageProcessingView::OnImageprocessGetpixelvalue()
 {
-	if(pFileBuf == NULL) return;
-	CDialog dlg("GetPixelValue", NULL);
-	if (dlg.DoModal() != IDOK)return;
+	if (pFileBuf == NULL) return;
+	CInputXY inputDlg;
+	if (inputDlg.DoModal() != IDOK)return;
 	//int nret = dlg.DoModal();
 
 	/**/
 	//Add your code to choose the coordinate (x,y)
 	
-	int x = 100;
-	int y = 100;
+	int x = atoi(inputDlg.X.GetBuffer(0));
+	int y = atoi(inputDlg.Y.GetBuffer(0));
 	RGBQUAD rgb;
 	bool bGray;
 	GetPixel(pFileBuf,x,y,&rgb,&bGray);

@@ -39,6 +39,9 @@
     <ClInclude Include="_GlobalCommon.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="CInputXY.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imageProcessing.cpp">
@@ -54,6 +57,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="_GlobalCommon.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CInputXY.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
