@@ -401,3 +401,70 @@ char *ImageInterpolation(char *pBmpFileBuf,int newWidth,int newHeight,int nMetho
 	/**/
 	return( pNewBmpFileBuf );
 }
+
+/**
+	 功能: 高斯平滑
+		   sigma  高斯函数的均方差
+	 返回: 新图像的BMP文件缓冲区首地址
+		   NULL 表示失败（内存不足）
+**/
+char* ImageGausssmooth(char* pBmpFileBuf, int sigma)
+{
+	BITMAPFILEHEADER* pFileHeader = (BITMAPFILEHEADER*)pBmpFileBuf;
+	BITMAPINFOHEADER* pDIBInfo = (BITMAPINFOHEADER*)(pBmpFileBuf + sizeof(BITMAPFILEHEADER));
+
+	char* pNewBmpFileBuf = new char[pFileHeader->bfSize];
+	memcpy(pNewBmpFileBuf, pBmpFileBuf, pFileHeader->bfOffBits);
+
+	// 计算高斯核
+	int R = (sigma << 1) + 1;
+	double* Kernel = new double[R * R];
+	for (int i = 0; i < R * R; i++)Kernel[i] = 0.0;
+	double tot_value = 0.0;
+	for (int y = -sigma; y <= sigma; y++) {
+		for (int x = -sigma; x <= sigma; x++) {
+			int id = (y + sigma) * R + x + sigma;
+			Kernel[id] = exp(-1.0 * (x * x + y * y) / (2.0 * sigma * sigma));
+			tot_value += Kernel[id];
+		}
+	}
+	for (int i = 0; i < R * R; i++) {
+		Kernel[i] /= tot_value;
+	}
+
+	int Width = pDIBInfo->biWidth;
+	int Height = pDIBInfo->biHeight;
+
+	for (int y = 0; y < Height; y++) {
+		for (int x = 0; x < Width; x++) {
+
+			RGBQUAD rgb;
+			double r = 0.0, g = 0.0, b = 0.0, res = 0.0;
+			int id = 0;
+			for (int i = -sigma; i <= sigma; i++) {
+				for (int j = -sigma; j <= sigma; j++) {
+					int ny = y + i, nx = x + j;
+					if (ny < 0)ny = 0;
+					if (ny >= Height)ny = Height - 1;
+					if (nx < 0)nx = 0;
+					if (nx >= Width)nx = Width - 1;
+					GetPixel(pBmpFileBuf, nx, ny, &rgb);
+					b += Kernel[id] * ((BYTE*)&rgb)[0];
+					g += Kernel[id] * ((BYTE*)&rgb)[1];
+					r += Kernel[id] * ((BYTE*)&rgb)[2];
+					res += Kernel[id] * ((BYTE*)&rgb)[3];
+					id++;
+				}
+			}
+
+			((BYTE*)&rgb)[0] = (int)b;
+			((BYTE*)&rgb)[1] = (int)g;
+			((BYTE*)&rgb)[2] = (int)r;
+			((BYTE*)&rgb)[3] = int(res);
+
+			SetPixel(pNewBmpFileBuf, x, y, rgb);
+		}
+	}
+
+	return pNewBmpFileBuf;
+}

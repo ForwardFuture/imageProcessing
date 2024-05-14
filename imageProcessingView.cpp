@@ -10,6 +10,7 @@
 #include "CInputXY.h"
 #include "CInputXYRGB.h"
 #include "CInterpolation.h"
+#include "CGausssmooth.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -220,6 +221,15 @@ void CimageProcessingView::OnImageprocessInterpolation()
 //Gaussian smoothing
 void CimageProcessingView::OnImageprocessGausssmooth()
 {
+	if (pFileBuf == NULL)return;
+	CGausssmooth inputDlg(NULL);
+	if (inputDlg.DoModal() != IDOK)return;
+	int sigma = atoi(inputDlg.Gauss);
+	char* pNewImage = ImageGausssmooth(pFileBuf, sigma);
+	delete[] pFileBuf;
+	pFileBuf = pNewImage;
+	Invalidate();
+	UpdateWindow();
 }
 
 //Median filtering

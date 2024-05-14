@@ -183,6 +183,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CGausssmooth.h" />
     <ClInclude Include="CInputXY.h" />
     <ClInclude Include="CInputXYRGB.h" />
     <ClInclude Include="CInterpolation.h" />
@@ -196,6 +197,7 @@
     <ClInclude Include="_GlobalCommon.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CGausssmooth.cpp" />
     <ClCompile Include="CInputXY.cpp" />
     <ClCompile Include="CInputXYRGB.cpp" />
     <ClCompile Include="CInterpolation.cpp" />

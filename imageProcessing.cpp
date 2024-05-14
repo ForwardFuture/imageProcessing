@@ -86,6 +86,8 @@ protected:
 // 实现
 protected:
 	DECLARE_MESSAGE_MAP()
+public:
+	virtual INT_PTR DoModal();
 };
 
 CAboutDlg::CAboutDlg() noexcept : CDialogEx(IDD_ABOUTBOX)
@@ -105,4 +107,12 @@ void CimageProcessingApp::OnAppAbout()
 {
 	CAboutDlg aboutDlg;
 	aboutDlg.DoModal();
+}
+
+
+INT_PTR CAboutDlg::DoModal()
+{
+	// TODO: 在此添加专用代码和/或调用基类
+
+	return CDialogEx::DoModal();
 }
