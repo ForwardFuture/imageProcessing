@@ -13,6 +13,7 @@
 #include "CGausssmooth.h"
 #include "CMedianfilter.h"
 #include "CBilateralfilter.h"
+#include "CSharpengrad.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -280,6 +281,16 @@ void CimageProcessingView::OnImageprocessHistoequalization()
 //Sharpening by gradient
 void CimageProcessingView::OnImageprocessSharpengrad()
 {
+	if (pFileBuf == NULL)return;
+	CSharpengrad inputDlg(NULL);
+	if (inputDlg.DoModal() != IDOK)return;
+	double k1 = atof(inputDlg.k1);
+	double k2 = atof(inputDlg.k2);
+	char* pNewImage = ImageSharpengrad(pFileBuf, k1, k2);
+	delete[] pFileBuf;
+	pFileBuf = pNewImage;
+	Invalidate();
+	UpdateWindow();
 }
 
 //Canny edge detection

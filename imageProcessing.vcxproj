@@ -189,6 +189,7 @@
     <ClInclude Include="CInputXYRGB.h" />
     <ClInclude Include="CInterpolation.h" />
     <ClInclude Include="CMedianfilter.h" />
+    <ClInclude Include="CSharpengrad.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="imageProcessing.h" />
     <ClInclude Include="imageProcessingDoc.h" />
@@ -205,6 +206,7 @@
     <ClCompile Include="CInputXYRGB.cpp" />
     <ClCompile Include="CInterpolation.cpp" />
     <ClCompile Include="CMedianfilter.cpp" />
+    <ClCompile Include="CSharpengrad.cpp" />
     <ClCompile Include="imageProcessing.cpp" />
     <ClCompile Include="imageProcessingDoc.cpp" />
     <ClCompile Include="imageProcessingView.cpp" />

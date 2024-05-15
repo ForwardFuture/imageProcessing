@@ -658,3 +658,57 @@ char* ImageHistoequalization(char* pBmpFileBuf)
 
 	return pNewBmpFileBuf;
 }
+
+/**
+	 功能: 基于梯度的锐化
+			k1   基本信息保留因子
+			k2   细节增强强度系数
+	 返回: 新图像的BMP文件缓冲区首地址
+		   NULL 表示失败（内存不足）
+**/
+char* ImageSharpengrad(char* pBmpFileBuf, double k1, double k2)
+{
+	BITMAPFILEHEADER* pFileHeader = (BITMAPFILEHEADER*)pBmpFileBuf;
+	BITMAPINFOHEADER* pDIBInfo = (BITMAPINFOHEADER*)(pBmpFileBuf + sizeof(BITMAPFILEHEADER));
+
+	char* pNewBmpFileBuf = new char[pFileHeader->bfSize];
+	memcpy(pNewBmpFileBuf, pBmpFileBuf, pFileHeader->bfOffBits);
+
+	int Width = pDIBInfo->biWidth;
+	int Height = pDIBInfo->biHeight;
+
+	for (int y = 0; y < Height; y++) {
+		for (int x = 0; x < Width; x++) {
+
+			RGBQUAD rgb, crgb;
+			// 获得当前像素的颜色值
+			GetPixel(pBmpFileBuf, x, y, &crgb);
+			double cbrightness = 1.0 * ((((BYTE*)&crgb)[2] * 299) + (((BYTE*)&crgb)[1] * 587) + (((BYTE*)&crgb)[0] * 114)) / 1000.0;
+
+			// 计算X方向的梯度
+			int ny = y, nx = x + 1;
+			if (nx >= Width)nx = Width - 1;
+			GetPixel(pBmpFileBuf, nx, ny, &rgb);
+			double brightness = 1.0 * ((((BYTE*)&rgb)[2] * 299) + (((BYTE*)&rgb)[1] * 587) + (((BYTE*)&rgb)[0] * 114)) / 1000.0;
+			double gradX = brightness - cbrightness;
+
+			// 计算Y方向的梯度
+			ny = y + 1, nx = x;
+			if (ny >= Height)ny = Height - 1;
+			GetPixel(pBmpFileBuf, nx, ny, &rgb);
+			brightness = 1.0 * ((((BYTE*)&rgb)[2] * 299) + (((BYTE*)&rgb)[1] * 587) + (((BYTE*)&rgb)[0] * 114)) / 1000.0;
+			double gradY = brightness - cbrightness;
+
+			double grad = sqrt(gradX * gradX + gradY * gradY);
+
+			((BYTE*)&rgb)[3] = min(255, int(k1 * ((BYTE*)&crgb)[3] + k2 * grad));
+			((BYTE*)&rgb)[2] = min(255, int(k1 * ((BYTE*)&crgb)[2] + k2 * grad));
+			((BYTE*)&rgb)[1] = min(255, int(k1 * ((BYTE*)&crgb)[1] + k2 * grad));
+			((BYTE*)&rgb)[0] = min(255, int(k1 * ((BYTE*)&crgb)[0] + k2 * grad));
+
+			SetPixel(pNewBmpFileBuf, x, y, rgb);
+		}
+	}
+
+	return pNewBmpFileBuf;
+}
