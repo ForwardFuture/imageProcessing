@@ -26,3 +26,4 @@ char    *ImageInterpolation(char *pBmpFileBuf,int newWidth,int newHeight,int nMe
 char    *ImageGausssmooth(char* pBmpFileBuf, int sigma);
 char    *ImageMedianfilter(char* pBmpFileBuf, int N1, int N2);
 char    *ImageBilateralfilter(char* pBmpFileBuf, int N1, int N2, int sigma_d, int sigma_R);
+char    *ImageHistoequalization(char* pBmpFileBuf);

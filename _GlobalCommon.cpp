@@ -601,3 +601,60 @@ char* ImageBilateralfilter(char* pBmpFileBuf, int N1, int N2, int sigma_d, int s
 
 	return pNewBmpFileBuf;
 }
+
+/**
+	 功能: 直方图均衡化
+	 返回: 新图像的BMP文件缓冲区首地址
+		   NULL 表示失败（内存不足）
+**/
+char* ImageHistoequalization(char* pBmpFileBuf)
+{
+	BITMAPFILEHEADER* pFileHeader = (BITMAPFILEHEADER*)pBmpFileBuf;
+	BITMAPINFOHEADER* pDIBInfo = (BITMAPINFOHEADER*)(pBmpFileBuf + sizeof(BITMAPFILEHEADER));
+
+	char* pNewBmpFileBuf = new char[pFileHeader->bfSize];
+	memcpy(pNewBmpFileBuf, pBmpFileBuf, pFileHeader->bfOffBits);
+
+	int Width = pDIBInfo->biWidth;
+	int Height = pDIBInfo->biHeight;
+
+	// 统计图像中每个灰度级的像素数量
+	int* num = new int[256];
+	for (int i = 0; i < 256; i++)num[i] = 0;
+	for (int y = 0; y < Height; y++) {
+		for (int x = 0; x < Width; x++) {
+			RGBQUAD rgb;
+			GetPixel(pBmpFileBuf, x, y, &rgb);
+			double brightness = 1.0 * ((((BYTE*)&rgb)[2] * 299) + (((BYTE*)&rgb)[1] * 587) + (((BYTE*)&rgb)[0] * 114)) / 1000.0;
+			num[(int)brightness]++;
+		}
+	}
+
+	// 计算每个灰度级像素的频率并做前缀和
+	double* perc_num = new double[256];
+	int maxn = Width * Height;
+	perc_num[0] = 1.0 * num[0] / maxn;
+	for (int i = 1; i < 256; i++) {
+		perc_num[i] = 1.0 * num[i] / maxn;
+		perc_num[i] += perc_num[i - 1];
+	}
+
+	// 根据统计出的结果重新计算每个像素的灰度级并更新图像
+	for (int y = 0; y < Height; y++) {
+		for (int x = 0; x < Width; x++) {
+			RGBQUAD rgb;
+			GetPixel(pBmpFileBuf, x, y, &rgb);
+			double brightness = 1.0 * ((((BYTE*)&rgb)[2] * 299) + (((BYTE*)&rgb)[1] * 587) + (((BYTE*)&rgb)[0] * 114)) / 1000.0;
+			int new_brightness = int(perc_num[(int)brightness] * 255.0 + 0.5);
+
+			((BYTE*)&rgb)[3] = min(255, int(1.0 * ((BYTE*)&rgb)[3] / int(brightness) * new_brightness));
+			((BYTE*)&rgb)[2] = min(255, int(1.0 * ((BYTE*)&rgb)[2] / int(brightness) * new_brightness));
+			((BYTE*)&rgb)[1] = min(255, int(1.0 * ((BYTE*)&rgb)[1] / int(brightness) * new_brightness));
+			((BYTE*)&rgb)[0] = min(255, int(1.0 * ((BYTE*)&rgb)[0] / int(brightness) * new_brightness));
+
+			SetPixel(pNewBmpFileBuf, x, y, rgb);
+		}
+	}
+
+	return pNewBmpFileBuf;
+}

@@ -269,6 +269,12 @@ void CimageProcessingView::OnImageprocessBilateralfilter()
 //Histogram equalization
 void CimageProcessingView::OnImageprocessHistoequalization()
 {
+	if (pFileBuf == NULL)return;
+	char* pNewImage = ImageHistoequalization(pFileBuf);
+	delete[] pFileBuf;
+	pFileBuf = pNewImage;
+	Invalidate();
+	UpdateWindow();
 }
 
 //Sharpening by gradient
