@@ -183,6 +183,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CBilateralfilter.h" />
     <ClInclude Include="CGausssmooth.h" />
     <ClInclude Include="CInputXY.h" />
     <ClInclude Include="CInputXYRGB.h" />
@@ -198,6 +199,7 @@
     <ClInclude Include="_GlobalCommon.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CBilateralfilter.cpp" />
     <ClCompile Include="CGausssmooth.cpp" />
     <ClCompile Include="CInputXY.cpp" />
     <ClCompile Include="CInputXYRGB.cpp" />

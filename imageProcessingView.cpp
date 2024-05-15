@@ -12,6 +12,7 @@
 #include "CInterpolation.h"
 #include "CGausssmooth.h"
 #include "CMedianfilter.h"
+#include "CBilateralfilter.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -251,6 +252,18 @@ void CimageProcessingView::OnImageprocessMedianfilter()
 //Bilateral filtering
 void CimageProcessingView::OnImageprocessBilateralfilter()
 {
+	if (pFileBuf == NULL)return;
+	CBilateralfilter inputDlg(NULL);
+	if (inputDlg.DoModal() != IDOK)return;
+	int N1 = atoi(inputDlg.N1);
+	int N2 = atoi(inputDlg.N2);
+	int sigma_d = atoi(inputDlg.sigma_d);
+	int sigma_R = atoi(inputDlg.sigma_R);
+	char* pNewImage = ImageBilateralfilter(pFileBuf, N1, N2, sigma_d, sigma_R);
+	delete[] pFileBuf;
+	pFileBuf = pNewImage;
+	Invalidate();
+	UpdateWindow();
 }
 
 //Histogram equalization
