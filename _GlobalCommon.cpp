@@ -1014,5 +1014,86 @@ char* ImageHazeremoval(char* pBmpFileBuf, double w)
 	int Width = pDIBInfo->biWidth;
 	int Height = pDIBInfo->biHeight;
 
+	// 计算暗通道图像
+	std::pair<int, std::pair<int, int>>* darkimage = new std::pair<int, std::pair<int, int>>[Height * Width];
+	for (int i = 0; i < Height * Width; i++)darkimage[i].first = 300;
+	int id = 0;
+	int R = 3;
+	for (int y = 0; y < Height; y++) {
+		for (int x = 0; x < Width; x++) {
+
+			RGBQUAD rgb;
+			for (int i = -R; i <= R; i++) {
+				for (int j = -R; j <= R; j++) {
+					int ny = y + i, nx = x + j;
+					if (ny < 0 || ny >= Height || nx < 0 || nx >= Width)continue;
+					GetPixel(pBmpFileBuf, nx, ny, &rgb);
+					int res = min(((BYTE*)&rgb)[2], min((((BYTE*)&rgb)[1]), ((BYTE*)&rgb)[0]));
+					if (res < darkimage[id].first)darkimage[id].first = res;
+				}
+			}
+
+			darkimage[id].second = std::make_pair(x, y);
+			id++;
+		}
+	}
+
+	std::sort(darkimage, darkimage + Height * Width, [](std::pair<int, std::pair<int, int>>& a, std::pair<int, std::pair<int, int>>& b) {return a.first > b.first; });
+
+	// 求解大气光矢量
+	int maxn = int(0.1 * Height * Width);
+	int Ar = 0, Ag = 0, Ab = 0;
+	int max_brightness = 0;
+	RGBQUAD rgb;
+	for (int i = 0; i < maxn; i++) {
+		GetPixel(pBmpFileBuf, darkimage[i].second.first, darkimage[i].second.second, &rgb);
+		double brightness = 1.0 * ((((BYTE*)&rgb)[2] * 299) + (((BYTE*)&rgb)[1] * 587) + (((BYTE*)&rgb)[0] * 114)) / 1000.0;
+		if ((int)brightness > max_brightness) {
+			max_brightness = (int)brightness;
+			Ar = ((BYTE*)&rgb)[2];
+			Ag = ((BYTE*)&rgb)[1];
+			Ab = ((BYTE*)&rgb)[0];
+		}
+	}
+
+	// 计算每个像素处的透射率并求解无雾图像
+	std::sort(darkimage, darkimage + Height * Width, [=](std::pair<int, std::pair<int, int>>& a, std::pair<int, std::pair<int, int>>& b)
+		{return a.second.second * Width + a.second.first < b.second.second * Width + b.second.first; });
+	id = 0;
+	double t0 = 1e-6;
+	for (int y = 0; y < Height; y++) {
+		for (int x = 0; x < Width; x++) {
+
+			// 计算透射率
+			double t = 1.0;
+			for (int i = -R; i <= R; i++) {
+				for (int j = -R; j <= R; j++) {
+					int ny = y + i, nx = x + j;
+					if (ny < 0 || ny >= Height || nx < 0 || nx >= Width)continue;
+					GetPixel(pBmpFileBuf, nx, ny, &rgb);
+					double res = min(1.0 * ((BYTE*)&rgb)[2] / Ar, min((1.0 * ((BYTE*)&rgb)[1]) / Ag, 1.0 * ((BYTE*)&rgb)[0] / Ab));
+					t = min(t, w * res);
+				}
+			}
+			t = 1.0 - t;
+			GetPixel(pBmpFileBuf, x, y, &rgb);
+
+			// 求解无雾图像
+			int r = max(0, (int)(1.0 * (((BYTE*)&rgb)[2] - Ar) / max(t, t0) + Ar));
+			r = min(r, 255);
+			int g = max(0, (int)(1.0 * (((BYTE*)&rgb)[1] - Ag) / max(t, t0) + Ag));
+			g = min(g, 255);
+			int b = max(0, (int)(1.0 * (((BYTE*)&rgb)[0] - Ab) / max(t, t0) + Ab));
+			b = min(b, 255);
+
+			((BYTE*)&rgb)[2] = r;
+			((BYTE*)&rgb)[1] = g;
+			((BYTE*)&rgb)[0] = b;
+			SetPixel(pNewBmpFileBuf, x, y, rgb);
+
+			id++;
+		}
+	}
+
 	return pNewBmpFileBuf;
 }
