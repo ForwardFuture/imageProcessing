@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <cmath>
+#include <queue>
 
 /**
 	 功能: 从图像文件中建造DIB类
@@ -836,7 +837,82 @@ char* ImageCannyedgeStep1(char* pBmpFileBuf)
 }
 
 /**
+	 功能: Canny算子边缘检测步骤2
+			maxth   强阈值
+			minth   弱阈值
+	 返回: 新图像的BMP文件缓冲区首地址
+		   NULL 表示失败（内存不足）
+**/
+char* ImageCannyedgeStep2(char* pBmpFileBuf, int maxth, int minth)
+{
+	BITMAPFILEHEADER* pFileHeader = (BITMAPFILEHEADER*)pBmpFileBuf;
+	BITMAPINFOHEADER* pDIBInfo = (BITMAPINFOHEADER*)(pBmpFileBuf + sizeof(BITMAPFILEHEADER));
+
+	char* pNewBmpFileBuf = new char[pFileHeader->bfSize];
+	memcpy(pNewBmpFileBuf, pBmpFileBuf, pFileHeader->bfOffBits);
+
+	int Width = pDIBInfo->biWidth;
+	int Height = pDIBInfo->biHeight;
+
+	// 从所有灰度值高于强阈值的像素出发进行遍历，标记相邻的灰度值不低于弱阈值的像素
+	int dx[8] = { 1,1,0,-1,-1,-1,0,1 };
+	int dy[8] = { 0,-1,-1,-1,0,1,1,1 };
+	bool* vis = new bool[Height * Width];
+	for (int i = 0; i < Height * Width; i++)vis[i] = false;
+	std::queue<std::pair<int, int> >q;
+	RGBQUAD rgb;
+	for (int y = 0; y < Height; y++) {
+		for (int x = 0; x < Width; x++) {
+			GetPixel(pBmpFileBuf, x, y, &rgb);
+			double brightness = 1.0 * ((((BYTE*)&rgb)[2] * 299) + (((BYTE*)&rgb)[1] * 587) + (((BYTE*)&rgb)[0] * 114)) / 1000.0;
+			if ((int)brightness > maxth) {
+				int id = y * Width + x;
+				vis[id] = true;
+				q.push(std::make_pair(x, y));
+			}
+		}
+	}
+	while (!q.empty()) {
+		int x = q.front().first, y = q.front().second;
+		q.pop();
+		for (int i = 0; i < 8; i++) {
+			int nx = x + dx[i], ny = y + dy[i];
+			if (nx < 0 || nx >= Width || ny < 0 || ny >= Height)continue;
+			int index = ny * Width + nx;
+			if (vis[index])continue;
+
+			GetPixel(pBmpFileBuf, nx, ny, &rgb);
+			double brightness = 1.0 * ((((BYTE*)&rgb)[2] * 299) + (((BYTE*)&rgb)[1] * 587) + (((BYTE*)&rgb)[0] * 114)) / 1000.0;
+			if ((int)brightness > minth) {
+				vis[index] = true;
+				q.push(std::make_pair(nx, ny));
+			}
+		}
+	}
+
+	int id = 0;
+	for (int y = 0; y < Height; y++) {
+		for (int x = 0; x < Width; x++) {
+			if (vis[id]) {
+				GetPixel(pBmpFileBuf, x, y, &rgb);
+			}
+			else {
+				((BYTE*)&rgb)[3] = 0;
+				((BYTE*)&rgb)[2] = 0;
+				((BYTE*)&rgb)[1] = 0;
+				((BYTE*)&rgb)[0] = 0;
+			}
+			SetPixel(pNewBmpFileBuf, x, y, rgb);
+			id++;
+		}
+	}
+
+	return pNewBmpFileBuf;
+}
+
+/**
 	 功能: Otsu图像分割
+			threshold   计算得到的最佳分割阈值
 	 返回: 新图像的BMP文件缓冲区首地址
 		   NULL 表示失败（内存不足）
 **/
