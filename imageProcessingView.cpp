@@ -314,4 +314,14 @@ void CimageProcessingView::OnImageprocessCannyedge()
 //Otsu segmentation
 void CimageProcessingView::OnImageprocessOtsusegment()
 {
+	if (pFileBuf == NULL)return;
+	int threshold = 0;
+	char* pNewImage = ImageOtsusegment(pFileBuf, threshold);
+	char msg_buff[50];
+	sprintf(msg_buff, "threshold = %d\n", threshold);
+	AfxMessageBox(msg_buff);
+	delete[] pFileBuf;
+	pFileBuf = pNewImage;
+	Invalidate();
+	UpdateWindow();
 }

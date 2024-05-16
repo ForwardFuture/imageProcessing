@@ -29,3 +29,4 @@ char    *ImageBilateralfilter(char* pBmpFileBuf, int N1, int N2, int sigma_d, in
 char    *ImageHistoequalization(char* pBmpFileBuf);
 char    *ImageSharpengrad(char* pBmpFileBuf, double k1, double k2);
 char    *ImageCannyedgeStep1(char* pBmpFileBuf);
+char    *ImageOtsusegment(char* pBmpFileBuf, int& threshold);

@@ -715,8 +715,7 @@ char* ImageSharpengrad(char* pBmpFileBuf, double k1, double k2)
 }
 
 /**
-	 功能: Canny算子边缘检测
-			sigma   高斯模糊核半径（均方差）
+	 功能: Canny算子边缘检测步骤1
 	 返回: 新图像的BMP文件缓冲区首地址
 		   NULL 表示失败（内存不足）
 **/
@@ -830,6 +829,92 @@ char* ImageCannyedgeStep1(char* pBmpFileBuf)
 			SetPixel(pNewBmpFileBuf, x, y, rgb);
 
 			id++;
+		}
+	}
+
+	return pNewBmpFileBuf;
+}
+
+/**
+	 功能: Otsu图像分割
+	 返回: 新图像的BMP文件缓冲区首地址
+		   NULL 表示失败（内存不足）
+**/
+char* ImageOtsusegment(char* pBmpFileBuf, int& threshold)
+{
+	BITMAPFILEHEADER* pFileHeader = (BITMAPFILEHEADER*)pBmpFileBuf;
+	BITMAPINFOHEADER* pDIBInfo = (BITMAPINFOHEADER*)(pBmpFileBuf + sizeof(BITMAPFILEHEADER));
+
+	char* pNewBmpFileBuf = new char[pFileHeader->bfSize];
+	memcpy(pNewBmpFileBuf, pBmpFileBuf, pFileHeader->bfOffBits);
+
+	int Width = pDIBInfo->biWidth;
+	int Height = pDIBInfo->biHeight;
+
+	// 计算频率直方图 & 频率累积直方图
+	double* histo = new double[256];
+	double* acc_histo = new double[256];
+	for (int i = 0; i < 256; i++)histo[i] = 0.0;
+	for (int i = 0; i < 256; i++)acc_histo[i] = 0.0;
+	RGBQUAD rgb;
+	for (int y = 0; y < Height; y++) {
+		for (int x = 0; x < Width; x++) {
+			GetPixel(pBmpFileBuf, x, y, &rgb);
+			double brightness = 1.0 * ((((BYTE*)&rgb)[2] * 299) + (((BYTE*)&rgb)[1] * 587) + (((BYTE*)&rgb)[0] * 114)) / 1000.0;
+			histo[(int)brightness] += 1.0;
+		}
+	}
+	double fm = 1.0 * Width * Height;
+	acc_histo[0] = histo[0] /= fm;
+	for (int i = 1; i < 256; i++) {
+		histo[i] /= fm;
+		acc_histo[i] = histo[i] + acc_histo[i - 1];
+	}
+
+	// 计算均值前缀和
+	double* mu = new double[256];
+	mu[0] = 0.0;
+	for (int i = 1; i < 256; i++) {
+		mu[i] = 1.0 * i * histo[i];
+		mu[i] += mu[i - 1];
+	}
+
+	double max_var = 0.0;
+
+	// 枚举可能的阈值
+	for (int now_threshold = 1; now_threshold < 256; now_threshold++) {
+
+		// 计算类间方差
+		double w1 = acc_histo[now_threshold - 1];
+		double w2 = 1 - w1;
+		double mu1 = mu[now_threshold - 1] / w1;
+		double mu2 = (mu[255] - mu[now_threshold - 1]) / w2;
+		double var = w1 * w2 * (mu2 - mu1) * (mu2 - mu1);
+
+		if (var > max_var) {
+			max_var = var;
+			threshold = now_threshold;
+		}
+	}
+
+	// 图像分割
+	for (int y = 0; y < Height; y++) {
+		for (int x = 0; x < Width; x++) {
+			GetPixel(pBmpFileBuf, x, y, &rgb);
+			double brightness = 1.0 * ((((BYTE*)&rgb)[2] * 299) + (((BYTE*)&rgb)[1] * 587) + (((BYTE*)&rgb)[0] * 114)) / 1000.0;
+			if ((int)brightness < threshold) {
+				((BYTE*)&rgb)[3] = 0;
+				((BYTE*)&rgb)[2] = 0;
+				((BYTE*)&rgb)[1] = 0;
+				((BYTE*)&rgb)[0] = 0;
+			}
+			else {
+				((BYTE*)&rgb)[3] = 255;
+				((BYTE*)&rgb)[2] = 255;
+				((BYTE*)&rgb)[1] = 255;
+				((BYTE*)&rgb)[0] = 255;
+			}
+			SetPixel(pNewBmpFileBuf, x, y, rgb);
 		}
 	}
 
