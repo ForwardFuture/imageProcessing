@@ -31,3 +31,4 @@ char    *ImageSharpengrad(char* pBmpFileBuf, double k1, double k2);
 char    *ImageCannyedgeStep1(char* pBmpFileBuf);
 char    *ImageCannyedgeStep2(char* pBmpFileBuf, int maxth, int minth);
 char    *ImageOtsusegment(char* pBmpFileBuf, int& threshold);
+char    *ImageHazeremoval(char* pBmpFileBuf, double w);

@@ -186,6 +186,7 @@
     <ClInclude Include="CBilateralfilter.h" />
     <ClInclude Include="CCannyedge.h" />
     <ClInclude Include="CGausssmooth.h" />
+    <ClInclude Include="CHazeremoval.h" />
     <ClInclude Include="CInputXY.h" />
     <ClInclude Include="CInputXYRGB.h" />
     <ClInclude Include="CInterpolation.h" />
@@ -204,6 +205,7 @@
     <ClCompile Include="CBilateralfilter.cpp" />
     <ClCompile Include="CCannyedge.cpp" />
     <ClCompile Include="CGausssmooth.cpp" />
+    <ClCompile Include="CHazeremoval.cpp" />
     <ClCompile Include="CInputXY.cpp" />
     <ClCompile Include="CInputXYRGB.cpp" />
     <ClCompile Include="CInterpolation.cpp" />

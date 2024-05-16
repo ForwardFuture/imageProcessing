@@ -996,3 +996,23 @@ char* ImageOtsusegment(char* pBmpFileBuf, int& threshold)
 
 	return pNewBmpFileBuf;
 }
+
+/**
+	 功能: 图像去雾
+			w    计算透射率时的参数w（0.8~0.95之间）
+	 返回: 新图像的BMP文件缓冲区首地址
+		   NULL 表示失败（内存不足）
+**/
+char* ImageHazeremoval(char* pBmpFileBuf, double w)
+{
+	BITMAPFILEHEADER* pFileHeader = (BITMAPFILEHEADER*)pBmpFileBuf;
+	BITMAPINFOHEADER* pDIBInfo = (BITMAPINFOHEADER*)(pBmpFileBuf + sizeof(BITMAPFILEHEADER));
+
+	char* pNewBmpFileBuf = new char[pFileHeader->bfSize];
+	memcpy(pNewBmpFileBuf, pBmpFileBuf, pFileHeader->bfOffBits);
+
+	int Width = pDIBInfo->biWidth;
+	int Height = pDIBInfo->biHeight;
+
+	return pNewBmpFileBuf;
+}

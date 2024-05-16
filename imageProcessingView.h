@@ -49,6 +49,7 @@ public:
 	afx_msg void OnImageprocessSharpengrad();
 	afx_msg void OnImageprocessCannyedge();
 	afx_msg void OnImageprocessOtsusegment();
+	afx_msg void OnImageprocessHazeremoval();
 };
 
 #ifndef _DEBUG  // imageProcessingView.cpp 中的调试版本

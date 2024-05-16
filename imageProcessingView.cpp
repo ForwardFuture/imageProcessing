@@ -15,6 +15,7 @@
 #include "CBilateralfilter.h"
 #include "CSharpengrad.h"
 #include "CCannyedge.h"
+#include "CHazeremoval.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -37,6 +38,7 @@ BEGIN_MESSAGE_MAP(CimageProcessingView, CView)
 	ON_COMMAND(ID_IMAGEPROCESS_SHARPENGRAD, &CimageProcessingView::OnImageprocessSharpengrad)
 	ON_COMMAND(ID_IMAGEPROCESS_CANNYEDGE, &CimageProcessingView::OnImageprocessCannyedge)
 	ON_COMMAND(ID_IMAGEPROCESS_OTSUSEGMENT, &CimageProcessingView::OnImageprocessOtsusegment)
+	ON_COMMAND(ID_IMAGEPROCESS_HAZEREMOVAL, &CimageProcessingView::OnImageprocessHazeremoval)
 END_MESSAGE_MAP()
 
 CimageProcessingView::CimageProcessingView() noexcept
@@ -326,6 +328,20 @@ void CimageProcessingView::OnImageprocessOtsusegment()
 	char msg_buff[50];
 	sprintf(msg_buff, "threshold = %d\n", threshold);
 	AfxMessageBox(msg_buff);
+	delete[] pFileBuf;
+	pFileBuf = pNewImage;
+	Invalidate();
+	UpdateWindow();
+}
+
+//Haze removal
+void CimageProcessingView::OnImageprocessHazeremoval()
+{
+	if (pFileBuf == NULL)return;
+	CHazeremoval inputDlg(NULL);
+	if (inputDlg.DoModal() != IDOK)return;
+	double w = atof(inputDlg.w);
+	char* pNewImage = ImageHazeremoval(pFileBuf, w);
 	delete[] pFileBuf;
 	pFileBuf = pNewImage;
 	Invalidate();
