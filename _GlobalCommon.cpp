@@ -3,6 +3,7 @@
 #include "_GlobalCommon.h"
 #include <algorithm>
 #include <cstdlib>
+#include <cmath>
 
 /**
 	 功能: 从图像文件中建造DIB类
@@ -707,6 +708,128 @@ char* ImageSharpengrad(char* pBmpFileBuf, double k1, double k2)
 			((BYTE*)&rgb)[0] = min(255, int(k1 * ((BYTE*)&crgb)[0] + k2 * grad));
 
 			SetPixel(pNewBmpFileBuf, x, y, rgb);
+		}
+	}
+
+	return pNewBmpFileBuf;
+}
+
+/**
+	 功能: Canny算子边缘检测
+			sigma   高斯模糊核半径（均方差）
+	 返回: 新图像的BMP文件缓冲区首地址
+		   NULL 表示失败（内存不足）
+**/
+char* ImageCannyedgeStep1(char* pBmpFileBuf)
+{
+	BITMAPFILEHEADER* pFileHeader = (BITMAPFILEHEADER*)pBmpFileBuf;
+	BITMAPINFOHEADER* pDIBInfo = (BITMAPINFOHEADER*)(pBmpFileBuf + sizeof(BITMAPFILEHEADER));
+
+	char* pNewBmpFileBuf = new char[pFileHeader->bfSize];
+	memcpy(pNewBmpFileBuf, pBmpFileBuf, pFileHeader->bfOffBits);
+
+	int Width = pDIBInfo->biWidth;
+	int Height = pDIBInfo->biHeight;
+
+	int dx[8] = { 1,1,0,-1,-1,-1,0,1 };
+	int dy[8] = { 0,-1,-1,-1,0,1,1,1 };
+	int sobel_x[3][3] = { {-1,0,1},{-2,0,2},{-1,0,1} };
+	int sobel_y[3][3] = { {-1,-2,-1},{0,0,0},{1,2,1} };
+	double pi = acos(-1);
+	double* grad = new double[Height * Width];
+	int* theta = new int[Height * Width];
+
+	// 利用Sobel算子计算每个点处的梯度模和方向
+	for (int y = 0; y < Height; y++) {
+		for (int x = 0; x < Width; x++) {
+
+			RGBQUAD rgb;
+			double gradX = 0.0, gradY = 0.0;
+			for (int i = -1; i <= 1; i++) {
+				for (int j = -1; j <= 1; j++) {
+
+					int ny = y + i, nx = x + j;
+					if (ny < 0)ny = 0;
+					if (ny >= Height)ny = Height - 1;
+					if (nx < 0)nx = 0;
+					if (nx >= Width)nx = Width - 1;
+
+					GetPixel(pBmpFileBuf, nx, ny, &rgb);
+					double brightness = 1.0 * ((((BYTE*)&rgb)[2] * 299) + (((BYTE*)&rgb)[1] * 587) + (((BYTE*)&rgb)[0] * 114)) / 1000.0;
+					
+					gradX += brightness * sobel_x[i + 1][j + 1];
+					gradY += brightness * sobel_y[i + 1][j + 1];
+				}
+			}
+
+			int index = y * Width + x;
+			grad[index] = sqrt(gradX * gradX + gradY * gradY);
+			if (fabs(gradX) < 1e-4) {
+				if (gradY > 0)theta[index] = 2;
+				else theta[index] = 6;
+			}
+			else {
+				double angle = atan(gradY / gradX);
+				if (gradX > 0) {
+					if (gradY < 0)angle += 2.0 * pi;
+				}
+				else if (gradX < 0)angle += pi;
+
+				double min_delta = 30.0;
+				int dir = -1;
+				double now_angle = 0.0;
+				for (int i = 0; i < 7; i++) {
+					double tmp = angle - now_angle;
+					double now_delta = min(fabs(tmp), min(fabs(tmp + 2 * pi), fabs(tmp - 2 * pi)));
+					if (now_delta < min_delta) {
+						min_delta = now_delta;
+						dir = i;
+					}
+				}
+				theta[index] = dir;
+			}
+		}
+	}
+
+	// 非极大值抑制
+	int id = 0;
+	RGBQUAD rgb;
+	for (int y = 0; y < Height; y++) {
+		for (int x = 0; x < Width; x++) {
+
+			bool check = true;
+			int pos = theta[id], neg = (theta[id] + 4) % 8;
+			// 检测梯度正方向
+			int nx = x + dx[pos], ny = y + dy[pos];
+			if (nx < 0)nx = 0;
+			if (nx >= Width)nx = Width - 1;
+			if (ny < 0)ny = 0;
+			if (ny >= Height)ny = Height - 1;
+			check &= grad[id] >= grad[ny * Width + nx];
+			// 检测梯度负方向
+			nx = x + dx[neg], ny = y + dy[neg];
+			if (nx < 0)nx = 0;
+			if (nx >= Width)nx = Width - 1;
+			if (ny < 0)ny = 0;
+			if (ny >= Height)ny = Height - 1;
+			check &= grad[id] >= grad[ny * Width + nx];
+
+			if (check) {
+				((BYTE*)&rgb)[3] = (int)grad[id];
+				((BYTE*)&rgb)[2] = (int)grad[id];
+				((BYTE*)&rgb)[1] = (int)grad[id];
+				((BYTE*)&rgb)[0] = (int)grad[id];
+			}
+			else {
+				((BYTE*)&rgb)[3] = 0;
+				((BYTE*)&rgb)[2] = 0;
+				((BYTE*)&rgb)[1] = 0;
+				((BYTE*)&rgb)[0] = 0;
+			}
+
+			SetPixel(pNewBmpFileBuf, x, y, rgb);
+
+			id++;
 		}
 	}
 

@@ -12,6 +12,7 @@
 #define IDD_CMedianfilter               318
 #define IDD_CBilateralfilter            319
 #define IDD_CSharpengrad                320
+#define IDD_CCannyedge                  322
 #define IDC_X                           1008
 #define IDC_Y                           1009
 #define IDC_R                           1010
@@ -28,8 +29,9 @@
 #define IDC_EDIT4                       1022
 #define IDC_sigma_R                     1022
 #define IDC_k1                          1023
-#define IDC_EDIT2                       1024
 #define IDC_k2                          1024
+#define IDC_EDIT1                       1025
+#define IDC_sigma                       1026
 #define ID_IMAGEPROCESSING_OPENABMPFILE 32771
 #define ID_IMAGEPROCESSING_SAVETONEWBMP 32772
 #define ID_IMAGEPROCESSING_DISPLAYBMPFILEHEADER 32773
@@ -63,9 +65,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        322
+#define _APS_NEXT_RESOURCE_VALUE        324
 #define _APS_NEXT_COMMAND_VALUE         32799
-#define _APS_NEXT_CONTROL_VALUE         1024
-#define _APS_NEXT_SYMED_VALUE           321
+#define _APS_NEXT_CONTROL_VALUE         1027
+#define _APS_NEXT_SYMED_VALUE           323
 #endif
 #endif

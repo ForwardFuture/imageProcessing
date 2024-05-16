@@ -28,3 +28,4 @@ char    *ImageMedianfilter(char* pBmpFileBuf, int N1, int N2);
 char    *ImageBilateralfilter(char* pBmpFileBuf, int N1, int N2, int sigma_d, int sigma_R);
 char    *ImageHistoequalization(char* pBmpFileBuf);
 char    *ImageSharpengrad(char* pBmpFileBuf, double k1, double k2);
+char    *ImageCannyedgeStep1(char* pBmpFileBuf);

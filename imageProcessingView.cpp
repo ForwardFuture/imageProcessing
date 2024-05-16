@@ -14,6 +14,7 @@
 #include "CMedianfilter.h"
 #include "CBilateralfilter.h"
 #include "CSharpengrad.h"
+#include "CCannyedge.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -296,6 +297,18 @@ void CimageProcessingView::OnImageprocessSharpengrad()
 //Canny edge detection
 void CimageProcessingView::OnImageprocessCannyedge()
 {
+	if (pFileBuf == NULL)return;
+	CCannyedge inputDlg(NULL);
+	if (inputDlg.DoModal() != IDOK)return;
+	int sigma = atoi(inputDlg.sigma);
+	char* pTmpImage = ImageGausssmooth(pFileBuf, sigma);
+	delete[] pFileBuf;
+	pFileBuf = pTmpImage;
+	char* pNewImage = ImageCannyedgeStep1(pFileBuf);
+	delete[] pFileBuf;
+	pFileBuf = pNewImage;
+	Invalidate();
+	UpdateWindow();
 }
 
 //Otsu segmentation
